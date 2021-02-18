@@ -4,6 +4,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
+#include "example_interfaces/srv/doubleint.hpp"
 
 template<>
 struct rclcpp::TypeAdaptor<std::string>
@@ -19,7 +20,33 @@ struct rclcpp::TypeAdaptor<std::string>
   }
 };
 
-int main() {
+/* 
+ * (audrow)
+ * Not sure how to make type adapter interface for services
+ * Do we make one type adapter for the service or one for the service
+ * request and response? How does this change our interface?
+ * 
+ * I'll keep mocking things up so that we can try out ideas.
+ */
+
+/*
+template<>
+struct rclcpp::TypeAdaptor<int>
+{
+  using is_specialized = std::true_type;
+  using ROSServiceType = example_interfaces::srv::DoubleInt::Request
+
+  static
+  ROSServiceType
+  convert_to_ros_service(const int & input_msg)
+  {
+    return ROSServiceType{input_msg};
+  }
+};
+*/
+
+
+void test_topics() {
   using std_msgs::msg::String;
 
   auto node = rclcpp::Node("node");
@@ -64,6 +91,28 @@ int main() {
     auto sub5 = node.create_subscription<std::string>("topic", cb_b2);
     auto sub6 = node.create_subscription<std::string>("topic", cb_b3);
   }
+}
+
+void test_services() {
+  using example_interfaces::srv::DoubleInt;
+
+  auto node = rclcpp::Node("node");
+
+  auto client1 = node.create_client<DoubleInt>("topic");
+  //auto client2 = node.create_publisher<int, int>("topic");
+
+  auto request = std::make_shared<DoubleInt::Request>();
+  request->num = 41;
+  // TODO(audrow) get it working without dereferencing
+  // Toy environment:
+  //     https://repl.it/@audrow/Explore-issame-with-namespaces#main.cpp
+  client1->async_send_request(*request);
+}
+
+int main() {
+
+  test_topics();
+  test_services();
 
   return 0;
 }

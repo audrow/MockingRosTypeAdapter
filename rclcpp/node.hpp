@@ -3,6 +3,7 @@
 #include "any_subscription_callback.hpp"
 #include "publisher.hpp"
 #include "subscription.hpp"
+#include "client.hpp"
 
 namespace rclcpp
 {
@@ -35,6 +36,17 @@ public:
   )
   {
     return rclcpp::create_subscription<MessageT, SubscriptionT, Node>(topic_name, callback);
+  }
+
+  template<
+    typename ServiceT,
+    typename ClientT = rclcpp::Client<ServiceT>>
+  std::shared_ptr<ClientT>
+  create_client(
+    const std::string & topic_name
+  )
+  {
+    return rclcpp::create_client<ServiceT, ClientT, Node>(topic_name);
   }
 
 private:
