@@ -103,10 +103,7 @@ void test_services() {
 
   auto request = std::make_shared<DoubleInt::Request>();
   request->num = 41;
-  // TODO(audrow) get it working without dereferencing
-  // Toy environment:
-  //     https://repl.it/@audrow/Explore-issame-with-namespaces#main.cpp
-  client1->async_send_request(*request);
+  client1->async_send_request(request);
 }
 
 int main() {
@@ -123,8 +120,11 @@ Next:
 
 - extend this example for Services (Audrow)
 - extend this example for Actions
-- reply to feedback on the REP (William)
+- update the REP with examples of type adapter declaration (Audrow if he has time)
 - start the pull request to rclcpp (William)
+  - TypeAdapter for pub/sub with covert only
+  - (later) with serialization (require serializer interface which might touch rmw)
+  - (later) integrate with the intra process stuff
 
 Later:
 
@@ -132,6 +132,5 @@ Later:
 - update examples
 - implement out-of-the-box support for some types, e.g. cv::Mat? or port pcl_conversions?
 - create tutorial, e.g. using MyVector3 -> geometry_msgs::msg::Vector3
-
 
 */

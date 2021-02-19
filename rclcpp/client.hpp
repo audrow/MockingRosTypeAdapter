@@ -23,7 +23,7 @@ public:
     rosidl_generator_traits::is_service<ServiceT>::value 
     && std::is_same<typename ServiceT::Request, T>::value
   >
-  async_send_request(const T & request)
+  async_send_request(const std::shared_ptr<T> & request)
   {
     // here we know ServiceT is already a ROS service
     // rcl_publish
