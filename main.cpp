@@ -20,32 +20,6 @@ struct rclcpp::TypeAdaptor<std::string>
   }
 };
 
-/* 
- * (audrow)
- * Not sure how to make type adapter interface for services
- * Do we make one type adapter for the service or one for the service
- * request and response? How does this change our interface?
- * 
- * I'll keep mocking things up so that we can try out ideas.
- */
-
-/*
-template<>
-struct rclcpp::TypeAdaptor<int>
-{
-  using is_specialized = std::true_type;
-  using ROSServiceType = example_interfaces::srv::DoubleInt::Request
-
-  static
-  ROSServiceType
-  convert_to_ros_service(const int & input_msg)
-  {
-    return ROSServiceType{input_msg};
-  }
-};
-*/
-
-
 void test_topics() {
   using std_msgs::msg::String;
 
@@ -93,17 +67,41 @@ void test_topics() {
   }
 }
 
+
+template<>
+struct rclcpp::TypeAdaptor<int>
+{
+  using is_specialized = std::true_type;
+  using ROSMessageType = example_interfaces::srv::DoubleInt::Request;
+
+  static
+  ROSMessageType
+  convert_to_ros_message(const int & input_msg)
+  {
+    return ROSMessageType{input_msg};
+  }
+};
+
+struct DoubleIntAdaptor {
+  using Request = int;
+  using Response = example_interfaces::srv::DoubleInt::Response;
+};
+
 void test_services() {
   using example_interfaces::srv::DoubleInt;
 
   auto node = rclcpp::Node("node");
 
   auto client1 = node.create_client<DoubleInt>("topic");
-  //auto client2 = node.create_publisher<int, int>("topic");
+  auto client2 = node.create_client<DoubleIntAdaptor>("topic");
 
-  auto request = std::make_shared<DoubleInt::Request>();
-  request->num = 41;
-  client1->async_send_request(request);
+  DoubleInt::Request request_ros;
+  request_ros.num = 41;
+  int request_adapted = 2;
+
+  client1->async_send_request(request_ros);
+  client2->async_send_request(request_adapted);
+  client2->async_send_request(request_ros);
 }
 
 int main() {

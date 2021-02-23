@@ -23,16 +23,21 @@ struct DoubleInt
   using Request = detail::DoubleInt_Request;
   using Response = detail::DoubleInt_Response;
 };
-
-}  // namespace srv
-
-}  // namespace example_interfaces
+}
+}
 
 namespace rosidl_typesupport_cpp
 {
 template<>
 const rosidl_type_support_t *
-get_service_type_support_handle<example_interfaces::srv::DoubleInt>()
+get_message_type_support_handle<example_interfaces::srv::DoubleInt::Request>()
+{
+  static auto this_type_support = rosidl_type_support_t {nullptr};
+  return &this_type_support;
+}
+template<>
+const rosidl_type_support_t *
+get_message_type_support_handle<example_interfaces::srv::DoubleInt::Response>()
 {
   static auto this_type_support = rosidl_type_support_t {nullptr};
   return &this_type_support;
@@ -42,5 +47,8 @@ get_service_type_support_handle<example_interfaces::srv::DoubleInt>()
 namespace rosidl_generator_traits
 {
 template<>
-struct is_service<example_interfaces::srv::DoubleInt> : std::true_type {};
+struct is_message<example_interfaces::srv::DoubleInt::Request> : std::true_type {};
+
+template<>
+struct is_message<example_interfaces::srv::DoubleInt::Response> : std::true_type {};
 }
