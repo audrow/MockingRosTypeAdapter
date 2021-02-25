@@ -1,9 +1,10 @@
 #pragma once
 
+#include <iostream>
+#include <future>
+
 #include "resolve_message_type_support_handle.hpp"
 #include "type_adaptation.hpp"
-
-#include <iostream>
 
 namespace rclcpp
 {
@@ -25,39 +26,46 @@ public:
   template<typename T>
   typename std::enable_if_t<
     rosidl_generator_traits::is_message<typename ServiceT::Request>::value 
-    && std::is_same<typename ServiceT::Request, T>::value
+    && std::is_same<typename ServiceT::Request, T>::value,
+    std::future<typename ServiceT::Response>
   >
   async_send_request(const T & request)
   {
     std::cout << "Sending ROS message (not adapted case)" << std::endl;
     // here we know ServiceT is already a ROS service
-    // rcl_publish
+    return std::async([]() {
+      return typename ServiceT::Response();
+    });
   }
 
   // Only if it is an adapted type
   template<typename T>
   typename std::enable_if_t<
     !rosidl_generator_traits::is_message<typename ServiceT::Request>::value
-    && std::is_same<typename ServiceT::Request, T>::value
+    && std::is_same<typename ServiceT::Request, T>::value,
+    std::future<typename ServiceT::Response>
   >
   async_send_request(const T & request)
   {
     // here we know ServiceT needs to be converted to ROS type
     std::cout << "Called for adapted type -> "; 
-    this->async_send_request(TypeAdaptor<T>::convert_to_ros_message(request));
+    return this->async_send_request(TypeAdaptor<T>::convert_to_ros_message(request));
   }
 
   // Only if it is an adapted type
   template<typename T>
   typename std::enable_if_t<
     !rosidl_generator_traits::is_message<typename ServiceT::Request>::value &&
-    rosidl_generator_traits::is_message<T>::value
+    rosidl_generator_traits::is_message<T>::value,
+    std::future<typename ServiceT::Response>
   >
   async_send_request(const T & request)
   {
     std::cout << "Sending ROS message (adapted case)" << std::endl;
     static_assert(std::is_same<T, typename TypeAdaptor<typename ServiceT::Request>::ROSMessageType>::value, "given ros service type does not match adapted type");
-    // rcl_publish
+    return std::async([]() {
+      return typename ServiceT::Response();
+    });
   }
 
 private:

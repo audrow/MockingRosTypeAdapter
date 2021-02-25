@@ -85,6 +85,14 @@ struct rclcpp::TypeAdaptor<int>
 struct DoubleIntAdaptor {
   using Request = int;
   using Response = example_interfaces::srv::DoubleInt::Response;
+
+  // TODO(audrow) make this work with test services below
+  // using Request = example_interfaces::srv::DoubleInt::Request;
+  // using Response = int;
+
+  // TODO(audrow) figure out how to make this work
+  // using Request = int;
+  // using Response = int;
 };
 
 void test_services() {
@@ -99,12 +107,19 @@ void test_services() {
   request_ros.num = 41;
   int request_adapted = 2;
 
-  client1->async_send_request(request_ros);
-  client2->async_send_request(request_adapted);
-  client2->async_send_request(request_ros);
+  auto future1 = client1->async_send_request(request_ros);
+  auto future2 = client2->async_send_request(request_adapted);
+  auto future3 = client2->async_send_request(request_ros);
+
+  std::cout << typeid(future1.get()).name() << std::endl;
+  std::cout << typeid(future2.get()).name() << std::endl;
+  std::cout << typeid(future3.get()).name() << std::endl;
 }
 
 int main() {
+
+  // Can be built and run with the following command:
+  // g++ -pthread --std=c++17 -o main -g main.cpp && ./main && rm main
 
   test_topics();
   test_services();
