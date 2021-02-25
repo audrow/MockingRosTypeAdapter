@@ -82,17 +82,35 @@ struct rclcpp::TypeAdaptor<int>
   }
 };
 
+template<>
+struct rclcpp::TypeAdaptor<double>
+{
+  using is_specialized = std::true_type;
+  using ROSMessageType = example_interfaces::srv::DoubleInt::Response;
+
+  static
+  double
+  convert_from_ros_message(const ROSMessageType & input_msg)
+  {
+    return input_msg.result;
+  }
+};
+
 struct DoubleIntAdaptor {
+  // Comment in one of the pairs
+  // using Request = example_interfaces::srv::DoubleInt::Request;
+  // using Response = example_interfaces::srv::DoubleInt::Response;
+
   using Request = int;
   using Response = example_interfaces::srv::DoubleInt::Response;
 
   // TODO(audrow) make this work with test services below
   // using Request = example_interfaces::srv::DoubleInt::Request;
-  // using Response = int;
+  // using Response = double;
 
-  // TODO(audrow) figure out how to make this work
+  // TODO(audrow) figure out how to make this work if they are the same type
   // using Request = int;
-  // using Response = int;
+  // using Response = double;
 };
 
 void test_services() {

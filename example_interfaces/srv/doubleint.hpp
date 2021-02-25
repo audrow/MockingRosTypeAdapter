@@ -14,7 +14,7 @@ namespace detail
     int num;
   };
   struct DoubleInt_Response {
-    int result;
+    double result;
   };
 }
 
