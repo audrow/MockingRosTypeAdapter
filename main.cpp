@@ -98,19 +98,22 @@ struct rclcpp::TypeAdaptor<double>
 
 struct DoubleIntAdaptor {
   // Comment in one of the pairs
-  // using Request = example_interfaces::srv::DoubleInt::Request;
-  // using Response = example_interfaces::srv::DoubleInt::Response;
+  //
+  // NOTE if you set the request to be an int, you'll have to comment out
+  // client2 and it's calls
 
-  using Request = int;
-  using Response = example_interfaces::srv::DoubleInt::Response;
+  //using Request = example_interfaces::srv::DoubleInt::Request;
+  //using Response = example_interfaces::srv::DoubleInt::Response;
 
-  // TODO(audrow) make this work with test services below
-  // using Request = example_interfaces::srv::DoubleInt::Request;
-  // using Response = double;
+  //using Request = int;
+  //using Response = example_interfaces::srv::DoubleInt::Response;
+
+  //using Request = example_interfaces::srv::DoubleInt::Request;
+  //using Response = double;
 
   // TODO(audrow) figure out how to make this work if they are the same type
-  // using Request = int;
-  // using Response = double;
+  using Request = int;
+  using Response = double;
 };
 
 void test_services() {
@@ -121,17 +124,19 @@ void test_services() {
   auto client1 = node.create_client<DoubleInt>("topic");
   auto client2 = node.create_client<DoubleIntAdaptor>("topic");
 
-  DoubleInt::Request request_ros;
-  request_ros.num = 41;
-  int request_adapted = 2;
+  {
+    DoubleInt::Request request_ros;
+    request_ros.num = 41;
+    int request_adapted = 2;
 
-  auto future1 = client1->async_send_request(request_ros);
-  auto future2 = client2->async_send_request(request_adapted);
-  auto future3 = client2->async_send_request(request_ros);
+    auto future1 = client1->async_send_request(request_ros);
+    auto future2 = client2->async_send_request(request_adapted);
+    auto future3 = client2->async_send_request(request_ros);
 
-  std::cout << typeid(future1.get()).name() << std::endl;
-  std::cout << typeid(future2.get()).name() << std::endl;
-  std::cout << typeid(future3.get()).name() << std::endl;
+    std::cout << typeid(future1.get()).name() << std::endl;
+    std::cout << typeid(future2.get()).name() << std::endl;
+    std::cout << typeid(future3.get()).name() << std::endl;
+  }
 }
 
 int main() {

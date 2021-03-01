@@ -33,7 +33,7 @@ public:
   {
     std::cout << "Sending ROS message (not adapted case)" << std::endl;
     // here we know ServiceT is already a ROS service
-    return std::async(get_response);
+    return std::async(get_response<typename ServiceT::Response>);
   }
 
   // Only if it is an adapted type
@@ -61,14 +61,34 @@ public:
   {
     std::cout << "Sending ROS message (adapted case)" << std::endl;
     static_assert(std::is_same<T, typename TypeAdaptor<typename ServiceT::Request>::ROSMessageType>::value, "given ros service type does not match adapted type");
-    return std::async(get_response);
+    return std::async(get_response<typename ServiceT::Response>);
   }
+
 
 private:
 
-  static typename ServiceT::Response
+  // When the response is NOT type adapted
+  template<typename ResponseT = typename ServiceT::Response>
+  typename std::enable_if_t<
+    rosidl_generator_traits::is_message<ResponseT>::value,
+    ResponseT
+  >
+  static 
   get_response() {
-    return typename ServiceT::Response();
+    return ResponseT();
+  }
+
+  // When the response is type adapted
+  template<typename ResponseT = typename ServiceT::Response>
+  typename std::enable_if_t<
+    !rosidl_generator_traits::is_message<ResponseT>::value,
+    ResponseT
+  >
+  static 
+  get_response() {
+    auto msg = typename TypeAdaptor<ResponseT>::ROSMessageType();
+    auto out = TypeAdaptor<ResponseT>::convert_from_ros_message(msg);
+    return out;
   }
 
   std::string topic_name_;
