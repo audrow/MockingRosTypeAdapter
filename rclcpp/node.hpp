@@ -4,6 +4,9 @@
 #include "publisher.hpp"
 #include "subscription.hpp"
 #include "client.hpp"
+#include "service.hpp"
+
+#include <iostream>
 
 namespace rclcpp
 {
@@ -47,6 +50,18 @@ public:
   )
   {
     return rclcpp::create_client<ServiceT, ClientT, Node>(topic_name);
+  }
+
+  template<
+    typename ServiceT,
+    typename ServerT = rclcpp::Service<ServiceT>>
+  std::shared_ptr<ServerT>
+  create_service(
+    const std::string & topic_name,
+    AnySubscriptionCallback<typename ServiceT::Request> callback
+  )
+  {
+    return rclcpp::create_service<ServiceT, ServerT, Node>(topic_name, callback);
   }
 
 private:

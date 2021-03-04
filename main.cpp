@@ -6,6 +6,9 @@
 #include "std_msgs/msg/string.hpp"
 #include "example_interfaces/srv/doubleint.hpp"
 
+
+#include "rclcpp/any_subscription_callback.hpp"
+
 template<>
 struct rclcpp::TypeAdaptor<std::string>
 {
@@ -121,10 +124,10 @@ void test_services() {
 
   auto node = rclcpp::Node("node");
 
-  auto client1 = node.create_client<DoubleInt>("topic");
-  auto client2 = node.create_client<DoubleIntAdaptor>("topic");
+  #if 0 // client
+    auto client1 = node.create_client<DoubleInt>("topic");
+    auto client2 = node.create_client<DoubleIntAdaptor>("topic");
 
-  {
     DoubleInt::Request request_ros;
     request_ros.num = 41;
     int request_adapted = 2;
@@ -136,7 +139,21 @@ void test_services() {
     std::cout << typeid(future1.get()).name() << std::endl;
     std::cout << typeid(future2.get()).name() << std::endl;
     std::cout << typeid(future3.get()).name() << std::endl;
-  }
+  #endif
+
+  #if 1 // server
+
+    auto cb_a1 = [](const typename DoubleInt::Request & msg) {printf("%d\n", msg.num);};
+    auto cb_a2 = [](std::unique_ptr<DoubleInt::Request> msg) {printf("%d\n", msg->num);};
+    std::function<void (std::shared_ptr<const typename DoubleInt::Request>)> cb_a3 =
+      [](std::shared_ptr<const typename DoubleInt::Request> msg) {printf("%d\n", msg->num);};
+    {
+      auto server1 = node.create_service<DoubleInt>("topic", cb_a1);
+      auto server2 = node.create_service<DoubleInt>("topic", cb_a2);
+      auto server3 = node.create_service<DoubleInt>("topic", cb_a3);
+    }
+
+  #endif
 }
 
 int main() {
