@@ -7,8 +7,6 @@
 #include "example_interfaces/srv/doubleint.hpp"
 
 
-#include "rclcpp/any_subscription_callback.hpp"
-
 template<>
 struct rclcpp::TypeAdaptor<std::string>
 {
@@ -124,7 +122,7 @@ void test_services() {
 
   auto node = rclcpp::Node("node");
 
-  #if 0 // client
+  #if 1 // client
     auto client1 = node.create_client<DoubleInt>("topic");
     auto client2 = node.create_client<DoubleIntAdaptor>("topic");
 
@@ -147,10 +145,27 @@ void test_services() {
     auto cb_a2 = [](std::unique_ptr<DoubleInt::Request> msg) {printf("%d\n", msg->num);};
     std::function<void (std::shared_ptr<const typename DoubleInt::Request>)> cb_a3 =
       [](std::shared_ptr<const typename DoubleInt::Request> msg) {printf("%d\n", msg->num);};
+    auto request = std::make_shared<typename DoubleInt::Request>();
+    request->num = 3;
     {
       auto server1 = node.create_service<DoubleInt>("topic", cb_a1);
       auto server2 = node.create_service<DoubleInt>("topic", cb_a2);
       auto server3 = node.create_service<DoubleInt>("topic", cb_a3);
+    }
+
+    auto cb_b1 = [](const typename DoubleIntAdaptor::Request & msg) {printf("%d\n", msg);};
+    auto cb_b2 = [](std::unique_ptr<typename DoubleIntAdaptor::Request> msg) {printf("%d\n", *msg);};
+    // TODO(wjwwood): figure out why auto doesn't work
+    std::function<void (std::shared_ptr<const typename DoubleIntAdaptor::Request>)> cb_b3 =
+      [](std::shared_ptr<const typename DoubleIntAdaptor::Request> msg) {printf("%d\n", *msg);};
+
+    {
+      auto sub1 = node.create_service<DoubleIntAdaptor>("topic", cb_a1);
+      auto sub2 = node.create_service<DoubleIntAdaptor>("topic", cb_a2);
+      auto sub3 = node.create_service<DoubleIntAdaptor>("topic", cb_a3);
+      auto sub4 = node.create_service<DoubleIntAdaptor>("topic", cb_b1);
+      auto sub5 = node.create_service<DoubleIntAdaptor>("topic", cb_b2);
+      auto sub6 = node.create_service<DoubleIntAdaptor>("topic", cb_b3);
     }
 
   #endif
@@ -172,6 +187,7 @@ int main() {
 Next:
 
 - extend this example for Services (Audrow)
+  - Test using varient callback for subscription and service (audrow)
 - extend this example for Actions
 - update the REP with examples of type adapter declaration (Audrow if he has time)
 - start the pull request to rclcpp (William)

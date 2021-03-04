@@ -25,6 +25,7 @@ public:
     static_assert(rclcpp::is_ros_compatible_type<typename ServiceT::Request>::value, "given service request type is not compatible with ROS and cannot be used with a Client");
     static_assert(rclcpp::is_ros_compatible_type<typename ServiceT::Response>::value, "given service response type is not compatible with ROS and cannot be used with a Client");
   }
+
 private:
   std::string topic_name_;
   const rosidl_type_support_t * request_type_support_;
