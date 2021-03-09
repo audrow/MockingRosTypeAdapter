@@ -58,7 +58,7 @@ public:
   AnySubscriptionCallback(VariantT callback)
     : callback_(callback) {}
 
-  void run(
+  void dispatch(
     MessageT arg)
   {
     std::visit([arg](auto &&callback) {

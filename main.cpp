@@ -129,6 +129,7 @@ void test_services() {
   auto node = rclcpp::Node("node");
 
   #if 1 // client
+  {
     auto client1 = node.create_client<DoubleInt>("topic");
     auto client2 = node.create_client<DoubleIntAdaptor>("topic");
 
@@ -143,10 +144,11 @@ void test_services() {
     std::cout << typeid(future1.get()).name() << std::endl;
     std::cout << typeid(future2.get()).name() << std::endl;
     std::cout << typeid(future3.get()).name() << std::endl;
+  }
   #endif
 
   #if 1 // server
-
+  {
     auto cb_a1 = [](const typename DoubleInt::Request & msg) {printf("%d\n", msg.num);};
     auto cb_a2 = [](std::unique_ptr<DoubleInt::Request> msg) {printf("%d\n", msg->num);};
     std::function<void (std::shared_ptr<const typename DoubleInt::Request>)> cb_a3 =
@@ -173,20 +175,18 @@ void test_services() {
       auto sub5 = node.create_service<DoubleIntAdaptor>("topic", cb_b2);
       auto sub6 = node.create_service<DoubleIntAdaptor>("topic", cb_b3);
     }
-
+  }
   #endif
 
-  #if 0 // server with call back
+  #if 1 // server with call back
+  {
+    auto cb_a1 = [](const typename DoubleInt::Request & msg) {printf("Service request handled: %d\n", msg.num);};
+    auto server1 = node.create_service<DoubleInt>("topic", cb_a1);
 
-    //auto server1 = node.create_service<DoubleInt>("topic", cb_a1);
-
-    using f_t = std::function<void (const typename DoubleInt::Request)>;
-    f_t cb_a1 = [](const typename DoubleInt::Request & msg) {printf("%d\n", msg.num);};
-    DoubleInt::Request request;
+    auto request = typename DoubleInt::Request();
     request.num = 3;
-
-    //rclcpp::AnySubscriptionCallback<typename DoubleInt::Request> cb;
-    //std::get<f_t>(cb::variant_type)(request);
+    server1->handle_request(request);
+  }
   #endif
 }
 
