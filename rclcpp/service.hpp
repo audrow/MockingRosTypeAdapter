@@ -15,7 +15,7 @@ class Service
 public:
   Service(
     const std::string & topic_name, 
-    AnySubscriptionCallback<typename ServiceT::Request> callback
+    typename AnySubscriptionCallback<typename ServiceT::Request>::variant_type callback
   )
   : topic_name_(topic_name),
     request_type_support_(resolve_message_type_support_handle<typename ServiceT::Request>()),
@@ -37,7 +37,7 @@ template<class ServiceT, class ServerT, class NodeT>
 std::shared_ptr<ServerT>
 create_service(
   const std::string & topic_name, 
-  AnySubscriptionCallback<typename ServiceT::Request> callback
+  typename AnySubscriptionCallback<typename ServiceT::Request>::variant_type callback
 )
 {
   return std::make_shared<ServerT>(topic_name, callback);

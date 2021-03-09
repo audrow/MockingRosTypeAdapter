@@ -10,7 +10,9 @@ template<class MessageT>
 class Subscription
 {
 public:
-  Subscription(const std::string & topic_name, AnySubscriptionCallback<MessageT> callback)
+  Subscription(
+    const std::string & topic_name, 
+    typename AnySubscriptionCallback<MessageT>::variant_type callback)
   : topic_name_(topic_name),
     type_support_(resolve_message_type_support_handle<MessageT>()),
     callback_(callback)
@@ -26,7 +28,9 @@ private:
 
 template<class MessageT, class SubscriptionT, class NodeT>
 std::shared_ptr<SubscriptionT>
-create_subscription(const std::string & topic_name, AnySubscriptionCallback<MessageT> callback)
+create_subscription(
+  const std::string & topic_name, 
+  typename AnySubscriptionCallback<MessageT>::variant_type callback)
 {
   // In rclcpp other logic happens here.
   return std::make_shared<SubscriptionT>(topic_name, callback);

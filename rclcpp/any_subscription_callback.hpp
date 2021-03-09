@@ -6,6 +6,8 @@
 
 #include "../rosidl.hpp"
 #include "type_adaptation.hpp"
+#include "always_false.hpp"
+
 
 namespace rclcpp
 {
@@ -47,10 +49,41 @@ template<
   typename MessageT,
   typename VariantT = typename detail::AnySubscriptionCallbackHelper<MessageT>::variant_type
 >
-class AnySubscriptionCallback : public VariantT
+class AnySubscriptionCallback 
 {
 public:
-  using VariantT::VariantT;
+
+  using variant_type = VariantT;
+
+  AnySubscriptionCallback(VariantT callback)
+    : callback_(callback) {}
+
+  void run(
+    MessageT arg)
+  {
+    std::visit([arg](auto &&callback) {
+      using T = std::decay_t<decltype(callback)>;
+      if constexpr (
+          std::is_same_v<std::function<void(const MessageT &)>, T>)
+      {
+        callback(arg);
+      }
+      else if constexpr (
+          std::is_same_v<std::function<void(std::unique_ptr<MessageT>)>, T> ||
+          std::is_same_v<std::function<void(std::shared_ptr<const MessageT>)>, T>)
+      {
+        auto ptr = std::make_unique<MessageT>(arg);
+        callback(std::move(ptr));
+      }
+      else
+      {
+        static_assert(always_false_v<T>, "non-exhaustive visitor!");
+      }
+    }, callback_);
+  }
+
+private:
+  VariantT callback_;
 };
 
 }

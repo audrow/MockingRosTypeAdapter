@@ -6,6 +6,10 @@
 #include "std_msgs/msg/string.hpp"
 #include "example_interfaces/srv/doubleint.hpp"
 
+#include <variant>
+#include <functional>
+#include "rclcpp/any_subscription_callback.hpp"
+
 
 template<>
 struct rclcpp::TypeAdaptor<std::string>
@@ -50,6 +54,7 @@ void test_topics() {
     auto sub3 = node.create_subscription<String>("topic", cb_a3);
   }
 
+  #if 1
   auto cb_b1 = [](const std::string & msg) {printf("%s\n", msg.c_str());};
   auto cb_b2 = [](std::unique_ptr<std::string> msg) {printf("%s\n", msg->c_str());};
   // TODO(wjwwood): figure out why auto doesn't work
@@ -66,6 +71,7 @@ void test_topics() {
     auto sub5 = node.create_subscription<std::string>("topic", cb_b2);
     auto sub6 = node.create_subscription<std::string>("topic", cb_b3);
   }
+  #endif
 }
 
 
@@ -168,6 +174,19 @@ void test_services() {
       auto sub6 = node.create_service<DoubleIntAdaptor>("topic", cb_b3);
     }
 
+  #endif
+
+  #if 0 // server with call back
+
+    //auto server1 = node.create_service<DoubleInt>("topic", cb_a1);
+
+    using f_t = std::function<void (const typename DoubleInt::Request)>;
+    f_t cb_a1 = [](const typename DoubleInt::Request & msg) {printf("%d\n", msg.num);};
+    DoubleInt::Request request;
+    request.num = 3;
+
+    //rclcpp::AnySubscriptionCallback<typename DoubleInt::Request> cb;
+    //std::get<f_t>(cb::variant_type)(request);
   #endif
 }
 

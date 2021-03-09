@@ -35,7 +35,7 @@ public:
   std::shared_ptr<SubscriptionT>
   create_subscription(
     const std::string & topic_name,
-    AnySubscriptionCallback<MessageT> callback
+    typename AnySubscriptionCallback<MessageT>::variant_type callback
   )
   {
     return rclcpp::create_subscription<MessageT, SubscriptionT, Node>(topic_name, callback);
@@ -58,7 +58,7 @@ public:
   std::shared_ptr<ServerT>
   create_service(
     const std::string & topic_name,
-    AnySubscriptionCallback<typename ServiceT::Request> callback
+    typename AnySubscriptionCallback<typename ServiceT::Request>::variant_type callback
   )
   {
     return rclcpp::create_service<ServiceT, ServerT, Node>(topic_name, callback);
