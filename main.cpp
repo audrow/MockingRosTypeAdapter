@@ -168,12 +168,12 @@ void test_services() {
       [](std::shared_ptr<const typename DoubleIntAdaptor::Request> msg) {printf("%d\n", *msg);};
 
     {
-      auto sub1 = node.create_service<DoubleIntAdaptor>("topic", cb_a1);
-      auto sub2 = node.create_service<DoubleIntAdaptor>("topic", cb_a2);
-      auto sub3 = node.create_service<DoubleIntAdaptor>("topic", cb_a3);
-      auto sub4 = node.create_service<DoubleIntAdaptor>("topic", cb_b1);
-      auto sub5 = node.create_service<DoubleIntAdaptor>("topic", cb_b2);
-      auto sub6 = node.create_service<DoubleIntAdaptor>("topic", cb_b3);
+      auto server1 = node.create_service<DoubleIntAdaptor>("topic", cb_a1);
+      auto server2 = node.create_service<DoubleIntAdaptor>("topic", cb_a2);
+      auto server3 = node.create_service<DoubleIntAdaptor>("topic", cb_a3);
+      auto server4 = node.create_service<DoubleIntAdaptor>("topic", cb_b1);
+      auto server5 = node.create_service<DoubleIntAdaptor>("topic", cb_b2);
+      auto server6 = node.create_service<DoubleIntAdaptor>("topic", cb_b3);
     }
   }
   #endif
