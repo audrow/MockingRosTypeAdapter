@@ -149,23 +149,33 @@ void test_services() {
 
   #if 1 // server
   {
-    auto cb_a1 = [](const typename DoubleInt::Request & msg) {printf("%d\n", msg.num);};
-    auto cb_a2 = [](std::unique_ptr<DoubleInt::Request> msg) {printf("%d\n", msg->num);};
+    auto cb_a1 = [](const typename DoubleInt::Request & msg) {printf("CBA1: %d\n", msg.num);};
+    auto cb_a2 = [](std::unique_ptr<DoubleInt::Request> msg) {printf("CBA2: %d\n", msg->num);};
     std::function<void (std::shared_ptr<const typename DoubleInt::Request>)> cb_a3 =
-      [](std::shared_ptr<const typename DoubleInt::Request> msg) {printf("%d\n", msg->num);};
-    auto request = std::make_shared<typename DoubleInt::Request>();
-    request->num = 3;
+      [](std::shared_ptr<const typename DoubleInt::Request> msg) {printf("CBA3: %d\n", msg->num);};
+
     {
       auto server1 = node.create_service<DoubleInt>("topic", cb_a1);
       auto server2 = node.create_service<DoubleInt>("topic", cb_a2);
       auto server3 = node.create_service<DoubleInt>("topic", cb_a3);
+
+      auto request = typename DoubleInt::Request();
+      request.num = 1;
+      auto pu_request = std::make_unique<typename DoubleInt::Request>();
+      pu_request->num = 3;
+      auto ps_request = std::make_shared<typename DoubleInt::Request>();
+      ps_request->num = 3;
+
+      server1->handle_request(request);
+      server2->handle_request(std::move(pu_request));
+      server3->handle_request(ps_request);
     }
 
-    auto cb_b1 = [](const typename DoubleIntAdaptor::Request & msg) {printf("%d\n", msg);};
-    auto cb_b2 = [](std::unique_ptr<typename DoubleIntAdaptor::Request> msg) {printf("%d\n", *msg);};
+    auto cb_b1 = [](const typename DoubleIntAdaptor::Request & msg) {printf("CB B1: %d\n", msg);};
+    auto cb_b2 = [](std::unique_ptr<typename DoubleIntAdaptor::Request> msg) {printf("CB B2: %d\n", *msg);};
     // TODO(wjwwood): figure out why auto doesn't work
     std::function<void (std::shared_ptr<const typename DoubleIntAdaptor::Request>)> cb_b3 =
-      [](std::shared_ptr<const typename DoubleIntAdaptor::Request> msg) {printf("%d\n", *msg);};
+      [](std::shared_ptr<const typename DoubleIntAdaptor::Request> msg) {printf("CB B3: %d\n", *msg);};
 
     {
       auto server1 = node.create_service<DoubleIntAdaptor>("topic", cb_a1);
@@ -175,17 +185,6 @@ void test_services() {
       auto server5 = node.create_service<DoubleIntAdaptor>("topic", cb_b2);
       auto server6 = node.create_service<DoubleIntAdaptor>("topic", cb_b3);
     }
-  }
-  #endif
-
-  #if 1 // server with call back
-  {
-    auto cb_a1 = [](const typename DoubleInt::Request & msg) {printf("Service request handled: %d\n", msg.num);};
-    auto server1 = node.create_service<DoubleInt>("topic", cb_a1);
-
-    auto request = typename DoubleInt::Request();
-    request.num = 3;
-    server1->handle_request(request);
   }
   #endif
 }

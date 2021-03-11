@@ -59,20 +59,20 @@ public:
     : callback_(callback) {}
 
   void dispatch(
-    MessageT arg)
+    std::shared_ptr<MessageT> arg)
   {
     std::visit([arg](auto &&callback) {
       using T = std::decay_t<decltype(callback)>;
       if constexpr (
           std::is_same_v<std::function<void(const MessageT &)>, T>)
       {
-        callback(arg);
+        callback(*arg);
       }
       else if constexpr (
           std::is_same_v<std::function<void(std::unique_ptr<MessageT>)>, T> ||
           std::is_same_v<std::function<void(std::shared_ptr<const MessageT>)>, T>)
       {
-        auto ptr = std::make_unique<MessageT>(arg);
+        auto ptr = std::make_unique<MessageT>(*arg);
         callback(std::move(ptr));
       }
       else
