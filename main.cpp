@@ -184,6 +184,8 @@ void test_services() {
       auto server4 = node.create_service<DoubleIntAdaptor>("topic", cb_b1);
       auto server5 = node.create_service<DoubleIntAdaptor>("topic", cb_b2);
       auto server6 = node.create_service<DoubleIntAdaptor>("topic", cb_b3);
+
+      // TODO(audrow) Handle service requests for custom types
     }
   }
   #endif
